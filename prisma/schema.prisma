@@ -1,0 +1,25 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model User {
+  id       Int    @id @default(autoincrement())
+  username String @unique
+  password String
+  role     String
+}
+
+model Ticket {
+  id          Int      @id @default(autoincrement())
+  titulo      String
+  descripcion String
+  area        String
+  prioridad   String
+  estado      String   @default("PENDIENTE")
+  creadoPor   String
+  createdAt   DateTime @default(now())
+}
