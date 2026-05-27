@@ -1,77 +1,133 @@
-export default function AdminUsuariosPage() {
+"use client";
+
+import { useEffect, useState } from "react";
+
+export default function AdminPage() {
+  const [tickets, setTickets] = useState<any[]>([]);
+
+  async function cargarTickets() {
+    const res = await fetch("/api/tickets");
+    const data = await res.json();
+    setTickets(data);
+  }
+
+  async function cambiarEstado(id: number, estado: string) {
+    await fetch(`/api/tickets/${id}`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        estado,
+      }),
+    });
+
+    cargarTickets();
+  }
+
+  useEffect(() => {
+    cargarTickets();
+  }, []);
+
   return (
-    <main className="min-h-screen bg-gray-100 p-10">
+    <main className="p-10 bg-gray-100 min-h-screen">
       <h1 className="text-4xl font-bold mb-8">
-        Admin - Usuarios y Accesos
+        Panel Administrativo
       </h1>
 
-      <form className="bg-white p-6 rounded-2xl shadow max-w-3xl space-y-5">
-        <div>
-          <label className="block font-semibold mb-2">Nombre completo</label>
-          <input className="w-full border p-3 rounded-lg" placeholder="Ej: Juan Pérez" />
-        </div>
+      <div className="grid gap-5">
+        {tickets.map((ticket) => (
+          <div
+            key={ticket.id}
+            className="bg-white p-6 rounded-xl shadow"
+          >
+            <div className="flex justify-between">
+              <div>
+                <h2 className="text-2xl font-bold">
+                  {ticket.numero}
+                </h2>
 
-        <div>
-          <label className="block font-semibold mb-2">Usuario de acceso</label>
-          <input className="w-full border p-3 rounded-lg" placeholder="Ej: juan.ceo" />
-        </div>
+                <p>
+                  <b>Solicitante:</b>{" "}
+                  {ticket.solicitante}
+                </p>
 
-        <div>
-          <label className="block font-semibold mb-2">Contraseña asignada por ADMIN</label>
-          <input type="password" className="w-full border p-3 rounded-lg" placeholder="Contraseña temporal o fija" />
-          <p className="text-sm text-gray-500 mt-2">
-            Solo el administrador puede crear o cambiar esta contraseña.
-          </p>
-        </div>
+                <p>
+                  <b>Cuenta:</b>{" "}
+                  {ticket.cuenta}
+                </p>
 
-        <div>
-          <label className="block font-semibold mb-2">Rol</label>
-          <select className="w-full border p-3 rounded-lg">
-            <option value="">Selecciona rol</option>
-            <option value="ADMIN">ADMIN</option>
-            <option value="CEO">CEO</option>
-            <option value="TL">Team Leader</option>
-          </select>
-        </div>
+                <p>
+                  <b>Oficina:</b>{" "}
+                  {ticket.oficina}
+                </p>
 
-        <div className="bg-gray-50 p-4 rounded-xl space-y-3">
-          <h2 className="text-xl font-bold">Permisos del usuario</h2>
+                <p>
+                  <b>Tipo:</b>{" "}
+                  {ticket.tipo}
+                </p>
 
-          <label className="flex gap-3 items-center">
-            <input type="checkbox" />
-            Acceso a TICKETS VOISO
-          </label>
+                <p>
+                  <b>Estado:</b>{" "}
+                  {ticket.estado}
+                </p>
 
-          <label className="flex gap-3 items-center">
-            <input type="checkbox" />
-            Acceso a TICKETS RDP
-          </label>
-        </div>
+                <p>
+                  <b>Prioridad:</b>{" "}
+                  {ticket.prioridad}
+                </p>
 
-        <div>
-          <label className="block font-semibold mb-2">Equipos asignados</label>
-          <select className="w-full border p-3 rounded-lg" multiple>
-            <option value="equipo1">Equipo 1</option>
-            <option value="equipo2">Equipo 2</option>
-            <option value="equipo3">Equipo 3</option>
-          </select>
-          <p className="text-sm text-gray-500 mt-2">
-            Para seleccionar varios equipos, mantén presionada la tecla CTRL.
-          </p>
-        </div>
+                <p>
+                  <b>Tiempo:</b>{" "}
+                  {ticket.tiempoEspera}
+                </p>
 
-        <div>
-          <label className="block font-semibold mb-2">Estado del acceso</label>
-          <select className="w-full border p-3 rounded-lg">
-            <option value="activo">Activo</option>
-            <option value="inactivo">Inactivo</option>
-          </select>
-        </div>
+                <p className="mt-3">
+                  {ticket.descripcion}
+                </p>
+              </div>
 
-        <button className="bg-black text-white px-6 py-3 rounded-lg">
-          Crear usuario
-        </button>
-      </form>
+              <div className="flex flex-col gap-2">
+                <button
+                  onClick={() =>
+                    cambiarEstado(
+                      ticket.id,
+                      "EN PROCESO"
+                    )
+                  }
+                  className="bg-yellow-500 text-white px-4 py-2 rounded"
+                >
+                  En proceso
+                </button>
+
+                <button
+                  onClick={() =>
+                    cambiarEstado(
+                      ticket.id,
+                      "COMPLETADO"
+                    )
+                  }
+                  className="bg-green-600 text-white px-4 py-2 rounded"
+                >
+                  Completar
+                </button>
+
+                <button
+                  onClick={() =>
+                    cambiarEstado(
+                      ticket.id,
+                      "CANCELADO"
+                    )
+                  }
+                  className="bg-red-600 text-white px-4 py-2 rounded"
+                >
+                  Cancelar
+                </button>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
     </main>
   );
 }

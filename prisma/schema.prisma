@@ -4,22 +4,81 @@ generator client {
 
 datasource db {
   provider = "sqlite"
+  url      = "file:./dev.db"
 }
 
 model User {
-  id       Int    @id @default(autoincrement())
-  username String @unique
-  password String
-  role     String
+  id          Int      @id @default(autoincrement())
+  username    String   @unique
+  password    String
+  role        String
+
+  cuentaId    Int?
+  cuenta      Cuenta?  @relation(fields: [cuentaId], references: [id])
+
+  proyectos   ProyectoUsuario[]
+
+  createdAt   DateTime @default(now())
+}
+
+model Cuenta {
+  id          Int       @id @default(autoincrement())
+  nombre      String    @unique
+
+  usuarios    User[]
+  proyectos   Proyecto[]
+
+  createdAt   DateTime  @default(now())
+}
+
+model Proyecto {
+  id          Int       @id @default(autoincrement())
+  nombre      String
+
+  cuentaId    Int
+  cuenta      Cuenta    @relation(fields: [cuentaId], references: [id])
+
+  usuarios    ProyectoUsuario[]
+
+  tickets     Ticket[]
+
+  createdAt   DateTime  @default(now())
+}
+
+model ProyectoUsuario {
+  id          Int       @id @default(autoincrement())
+
+  userId      Int
+  proyectoId  Int
+
+  user        User      @relation(fields: [userId], references: [id])
+  proyecto    Proyecto  @relation(fields: [proyectoId], references: [id])
 }
 
 model Ticket {
-  id          Int      @id @default(autoincrement())
-  titulo      String
-  descripcion String
-  area        String
-  prioridad   String
-  estado      String   @default("PENDIENTE")
-  creadoPor   String
-  createdAt   DateTime @default(now())
+  id            Int      @id @default(autoincrement())
+
+  numero        String   @unique
+  tipo          String
+  descripcion   String
+
+  area          String
+  prioridad     String
+
+  estado        String   @default("PENDIENTE")
+
+  tiempoEspera  String
+
+  solicitante   String
+  oficina       String
+  cuenta        String
+
+  tecnico       String?
+
+  creadoPor     String
+
+  proyectoId    Int?
+  proyecto      Proyecto? @relation(fields: [proyectoId], references: [id])
+
+  createdAt     DateTime @default(now())
 }
